@@ -8,13 +8,17 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
 
     if (emailType === "VERIFY") {
       await User.findByIdAndUpdate(userId, {
-        verifyToken: hashedToken,
-        verifyTokenExpiry: Date.now() + 3600000, //1hr
+        $set: {
+          verifyToken: hashedToken,
+          verifyTokenExpiry: new Date(Date.now() + 3600000), //1hr
+        },
       });
     } else if (emailType === "RESET") {
       await User.findByIdAndUpdate(userId, {
-        forgotPasswordToken: hashedToken,
-        forgotPasswordTokenExpiry: Date.now() + 3600000, //1hr
+        $set: {
+          forgotPasswordToken: hashedToken,
+          forgotPasswordTokenExpiry: new Date(Date.now() + 3600000), //1hr
+        },
       });
     }
 
@@ -24,9 +28,9 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
       host: "sandbox.smtp.mailtrap.io",
       port: 2525,
       auth: {
-        user: "c503583df34922", //this should be in .env file 
-        pass: "dd5d3c8c0fa7b8"
-      }
+        user: "c503583df34922", //this should be in .env file
+        pass: "dd5d3c8c0fa7b8",
+      },
     });
 
     const mailOptions = {
@@ -34,7 +38,13 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
       to: email,
       subject:
         emailType === "VERIFY" ? "Verify your email" : "Reset your password",
-      html: `<p>Click <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}">here</a> to ${emailType === "VERIFY" ? "Verify your email" : "Reset your password"} or copy and paste the link below in your browser.<br> ${process.env.DOMAIN}/verifyemail?token=${hashedToken} </p>`,
+      html: `<p>Click <a href="${
+        process.env.DOMAIN
+      }/verifyemail?token=${hashedToken}">here</a> to ${
+        emailType === "VERIFY" ? "Verify your email" : "Reset your password"
+      } or copy and paste the link below in your browser.<br> ${
+        process.env.DOMAIN
+      }/verifyemail?token=${hashedToken} </p>`,
     };
 
     const mailResponse = await transport.sendMail(mailOptions);

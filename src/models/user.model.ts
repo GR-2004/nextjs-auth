@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "please provide an password"],
+      required: [true, "please provide a password"],
     },
     isVerified: {
       type: Boolean,
@@ -34,4 +34,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-export const User = mongoose.model.users || mongoose.model("users", userSchema);
+// Check if the model already exists, to avoid OverwriteModelError
+export const User =
+  mongoose.models.users || mongoose.model("users", userSchema);
